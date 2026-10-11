@@ -43,3 +43,13 @@ Le calcul des tuiles visibles est implémenté et testé. Le chargement demeure 
 Les futures commandes d'édition devront remplacer les collections immuables, valider avant application et garder un historique avant/après. Elles ne doivent pas modifier directement les buffers GPU ni les fichiers officiels.
 
 Les textures physiques sont rasterisées par le navigateur à 3200×1800 ; leur netteté est donc limitée aux forts zooms. Le mode Physique est initialement sélectionné. Les modes Plan et Physique partagent les contours fournis, sans pays ni villes ajoutés.
+
+## Pack raster V0.2
+
+La nouvelle archive de Gab est conservée intégralement dans `public/data/raster-v02/` (8192×4096, 682 tuiles, cartes 16 bits, masques et contours originaux). Le mode Physique utilise désormais ces tuiles PNG, sans reprendre les textures SVG V0.1. La caméra conserve un plan 2:1 ; les contours locaux sont convertis par x/1600×360−180 et 90−y/850×180, sans certification GPS.
+
+Le moteur choisit parmi cinq niveaux, charge six images au maximum simultanément, conserve jusqu’à 192 textures de 256 px et affiche les niveaux parents durant le chargement. Le niveau demandé est réduit si le viewport nécessiterait plus de 128 tuiles. Les erreurs de chargement ont une temporisation de 30 secondes. Les images sources 16 bits restent disponibles mais ne sont pas interprétées comme des altitudes certifiées.
+
+Le fond Physique contient déjà terres, reliefs, végétation et eaux : il est masquable en bloc. Les contrôles de ses composants fusionnés sont désactivés et expliqués. Plan conserve les contours sélectionnables et affiche les calques RGBA indépendants de végétation, déserts, neige et eaux ; ces images sont réduites à 2048×1024 pour limiter la mémoire GPU. Les SVG V0.1 sont conservés pour historique mais ne servent plus au rendu.
+
+GitHub : la carte de bathymétrie de 25 Mo est stockée en quatre morceaux binaires dans `source-data/` pour respecter la taille maximale du transfert. `npm install` exécute `scripts/restore-source.mjs`, qui la reconstitue dans son chemin original et vérifie son empreinte SHA-256. Le site hébergé contient le fichier complet.

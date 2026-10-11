@@ -1,0 +1,40 @@
+{
+  "name": "P2A Physical World Pack",
+  "version": "0.2",
+  "planet": "P2A",
+  "status": "prototype_non_georeference",
+  "projection": "equirectangular-style conceptual graphic, not spherical geospatial projection",
+  "canvas": {
+    "width": 8192,
+    "height": 4096
+  },
+  "C1": {
+    "mainland": 1,
+    "countries_included": false
+  },
+  "C2": {
+    "islands": 25,
+    "big_islands": 5,
+    "countries_included": false
+  },
+  "other_land": {
+    "independent_large_island_O4": 1
+  },
+  "data_limits": [
+    "heightmap generated procedurally; not surveyed elevations",
+    "bathymetry generated procedurally; not physically simulated",
+    "no borders, place names, political boundaries, settlements or roads",
+    "island geometries based on prior illustrative prototype; not validated coastlines"
+  ],
+  "tiles": {
+    "size": 256,
+    "levels": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "path": "tuiles/{z}/{x}/{y}.png"
+  }
+}

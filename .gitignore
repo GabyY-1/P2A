@@ -1,3 +1,4 @@
 node_modules/
 dist/
 .openai/*local*
+/public/data/raster-v02/calques/bathymetrie_16bits.png
