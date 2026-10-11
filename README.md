@@ -11,7 +11,7 @@ npm run build
 npm run test
 ```
 
-Le dépôt initial est vide : `public/data/p2a.geojson` contient une collection vide, sans géographie inventée. Ajoutez les données officielles à ce fichier ou importez un GeoJSON depuis le site. L'import remplace le jeu de données de la session, sans modifier le fichier d'origine. L'export permet de conserver le jeu importé.
+La carte physique V0.1 fournie par Gab est intégrée : C1, 25 îles de C2 et l’île indépendante O4. Les SVG et données JSON originaux sont conservés dans `public/data/official/`. Les calques SVG sont chargés comme textures WebGL2 indépendantes, avec conservation des contours, couleurs et positions. Le GeoJSON sert à la recherche et à la sélection. La correspondance dessin → repères de navigation est affine : longitude = x/1600×360−180, latitude = 90−(y+25)/900×180. Les 25 pixels de marge verticale conservent les proportions originales du dessin dans un monde 2:1. Ces repères ne constituent pas un géoréférencement officiel. Ajoutez les données officielles à ce fichier ou importez un GeoJSON depuis le site. L'import remplace le jeu de données de la session, sans modifier le fichier d'origine. L'export permet de conserver le jeu importé.
 
 ## Fonctionnalités
 
@@ -41,3 +41,5 @@ Le calcul des tuiles visibles est implémenté et testé. Le chargement demeure 
 `src/tests/core.test.ts` : tests des fondations.
 
 Les futures commandes d'édition devront remplacer les collections immuables, valider avant application et garder un historique avant/après. Elles ne doivent pas modifier directement les buffers GPU ni les fichiers officiels.
+
+Les textures physiques sont rasterisées par le navigateur à 3200×1800 ; leur netteté est donc limitée aux forts zooms. Le mode Physique est initialement sélectionné. Les modes Plan et Physique partagent les contours fournis, sans pays ni villes ajoutés.

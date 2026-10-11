@@ -1,9 +1,11 @@
+import {PhysicalAtlas} from './physical';
 import earcut from 'earcut';
 import {Camera,project,type XY} from './camera';
 import {featureLayer,positions,type Feature} from '../data/geojson';
 import {colors,type Mode} from './layers';
 type Batch={buffer:WebGLBuffer;count:number;primitive:number;layer:string;color:[number,number,number,number]};
 export class Renderer {
+ atlas:PhysicalAtlas|null=null;
  gl:WebGL2RenderingContext;program:WebGLProgram;batches:Batch[]=[];grid:Batch;lost=false;
  constructor(public canvas:HTMLCanvasElement,public camera:Camera){
   const gl=canvas.getContext('webgl2',{antialias:true,alpha:false});if(!gl)throw new Error('WebGL2 est indisponible sur cet appareil. Active l’accélération graphique ou utilise un navigateur compatible.');this.gl=gl;
@@ -24,10 +26,12 @@ precision mediump float;uniform vec4 u_color;out vec4 color;void main(){color=u_
   }
  }
  render(visible:Record<string,boolean>,mode:Mode){if(this.lost)return;const g=this.gl,c=this.camera,dpr=Math.min(window.devicePixelRatio||1,1.5);const w=Math.round(c.width*dpr),h=Math.round(c.height*dpr);if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}g.viewport(0,0,w,h);const bg=!visible.oceans?[.94,.95,.93]:mode==='physical'?[.08,.25,.32]:[.69,.83,.86];g.clearColor(...bg as [number,number,number],1);g.clear(g.COLOR_BUFFER_BIT);g.enable(g.BLEND);g.blendFunc(g.SRC_ALPHA,g.ONE_MINUS_SRC_ALPHA);g.useProgram(this.program);g.uniform2f(g.getUniformLocation(this.program,'u_center'),...c.center);g.uniform2f(g.getUniformLocation(this.program,'u_size'),c.width,c.height);g.uniform1f(g.getUniformLocation(this.program,'u_scale'),c.scale);const location=g.getAttribLocation(this.program,'a_position');g.enableVertexAttribArray(location);
-  for(const b of [...this.batches,this.grid]){if(!visible[b.layer])continue;g.bindBuffer(g.ARRAY_BUFFER,b.buffer);g.vertexAttribPointer(location,2,g.FLOAT,false,0,0);g.uniform4f(g.getUniformLocation(this.program,'u_color'),...b.color);const a=c.toWorld([0,0])[0],z=c.toWorld([c.width,c.height])[0];for(let k=Math.floor((a-180)/360);k<=Math.ceil((z+180)/360);k++){g.uniform1f(g.getUniformLocation(this.program,'u_offset'),k*360);g.drawArrays(b.primitive,0,b.count);}}
+  if(this.atlas)this.atlas.render(visible,mode==='physical');
+  g.useProgram(this.program);
+  for(const b of [...this.batches,this.grid]){if(this.atlas && b!==this.grid)continue;if(!visible[b.layer])continue;g.bindBuffer(g.ARRAY_BUFFER,b.buffer);g.vertexAttribPointer(location,2,g.FLOAT,false,0,0);g.uniform4f(g.getUniformLocation(this.program,'u_color'),...b.color);const a=c.toWorld([0,0])[0],z=c.toWorld([c.width,c.height])[0];for(let k=Math.floor((a-180)/360);k<=Math.ceil((z+180)/360);k++){g.uniform1f(g.getUniformLocation(this.program,'u_offset'),k*360);g.drawArrays(b.primitive,0,b.count);}}
  }
- restore(features:Feature[]){this.program=this.createProgram();this.grid=this.makeGrid();this.batches=[];this.lost=false;this.setData(features);}
- dispose(){for(const b of [...this.batches,this.grid])this.gl.deleteBuffer(b.buffer);this.gl.deleteProgram(this.program);}
+ restore(features:Feature[]){this.atlas?.dispose();this.atlas=null;this.program=this.createProgram();this.grid=this.makeGrid();this.batches=[];this.lost=false;this.setData(features);}
+ dispose(){this.atlas?.dispose();for(const b of [...this.batches,this.grid])this.gl.deleteBuffer(b.buffer);this.gl.deleteProgram(this.program);}
 }
 function unwrap(points:XY[]):XY[]{const out:XY[]=[];for(const p of points){let x=p[0];const prev=out.at(-1);if(prev){while(x-prev[0]>180)x-=360;while(x-prev[0]<-180)x+=360;}out.push([x,p[1]]);}return out;}
 export function pick(features:Feature[],c:Camera,p:XY,visible:Record<string,boolean>):Feature|undefined{
