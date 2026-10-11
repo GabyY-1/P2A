@@ -1,0 +1,4 @@
+export const layers=[['oceans','Océans'],['continents','Continents'],['islands','Îles'],['terrain','Relief'],['vegetation','Végétation'],['rivers','Fleuves et lacs'],['borders','Frontières'],['roads','Routes'],['cities','Villes'],['buildings','Bâtiments'],['labels','Étiquettes'],['poi',"Points d’intérêt"],['grid','Grille géographique']] as const;
+export type Mode='plan'|'physical';
+export const colors:Record<string,[number,number,number,number]>={continents:[.79,.85,.72,1],islands:[.79,.85,.72,1],terrain:[.65,.55,.39,1],vegetation:[.36,.58,.42,1],rivers:[.22,.58,.75,1],borders:[.62,.43,.67,1],roads:[.96,.78,.40,1],cities:[.13,.29,.32,1],buildings:[.48,.53,.51,1],poi:[.09,.48,.46,1]};
+export const defaultVisibility=()=>Object.fromEntries(layers.map(([id])=>[id,true]));
